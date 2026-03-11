@@ -1,194 +1,194 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/gamepad-2.svg" width="80" alt="OmniGame AI Logo" />
   <h1>OmniGame AI</h1>
-  <p><strong>Intelligent Game Modding Platform & RAG Technical Support</strong></p>
+  <p><strong>Plataforma Inteligente de Modding de Jogos & Suporte Técnico RAG</strong></p>
 
   <p>
-    <a href="#about">About</a> •
-    <a href="#architecture">Architecture</a> •
-    <a href="#core-features">Features</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#api-reference">API Reference</a>
+    <a href="#sobre">Sobre</a> •
+    <a href="#arquitetura">Arquitetura</a> •
+    <a href="#recursos-principais">Recursos</a> •
+    <a href="#como-começar">Como Começar</a> •
+    <a href="#referência-da-api">Referência da API</a>
   </p>
 </div>
 
 ---
 
-## 📖 About OmniGame AI
+## 📖 Sobre o OmniGame AI
 
-OmniGame AI is an AI-first SaaS platform designed to solve the "chaos problem" in game modding communities. Acting as an evolutionary step beyond traditional mod repositories (like Nexus Mods), it combines a **game-agnostic catalog** with a specialized **RAG (Retrieval-Augmented Generation) AI Assistant** named "The Collector."
+O OmniGame AI é uma plataforma SaaS AI-first projetada para resolver o "problema do caos" nas comunidades de modding de jogos. Atuando como um passo evolutivo além dos repositórios tradicionais de mods (como o Nexus Mods), ele combina um **catálogo agnóstico de jogos** com um **Assistente de IA RAG (Retrieval-Augmented Generation)** especializado chamado "The Collector".
 
-The platform is designed to handle extremely dynamic metadata for any game using an **Entity-Attribute-Value (EAV)** model and leverages **pgvector** for semantic search over game wikis and troubleshooting logs.
+A plataforma foi projetada para lidar com metadados extremamente dinâmicos para qualquer jogo usando um modelo **EAV (Entity-Attribute-Value)** e aproveita o **pgvector** para busca semântica em wikis de jogos e logs de solução de problemas.
 
 ---
 
-## 🏗 Architecture & Tech Stack
+## 🏗 Arquitetura & Stack Tecnológico
 
-The project follows a rigorous **Hexagonal Architecture** on the backend and a modern React ecosystem on the frontend, ensuring scalability, maintainability, and enterprise-grade code quality.
+O projeto segue uma rigorosa **Arquitetura Hexagonal** no backend e um ecossistema React moderno no frontend, garantindo escalabilidade, manutenibilidade e qualidade de código a nível corporativo.
 
-### Tech Stack
+### Stack Tecnológico
 
 - **Backend:** Java 21, Spring Boot 3.4
-- **AI & Data:** Spring AI, OpenAI (text-embedding-3-small, gpt-4o-mini), `pgvector`
-- **Database:** PostgreSQL (Supabase) with EAV Schema
-- **Security:** Stateless JWT integrated with Supabase Auth
-- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS v3 (Nexus-style Dark UI)
+- **IA & Dados:** Spring AI, OpenAI (text-embedding-3-small, gpt-4o-mini), `pgvector`
+- **Banco de Dados:** PostgreSQL (Supabase) com esquema EAV
+- **Segurança:** JWT Stateless integrado com Supabase Auth
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS v3 (Interface Dark estilo Nexus)
 
-### System Design Diagram
+### Diagrama de Design do Sistema
 
 ```mermaid
 graph TD
-    subgraph Client["Frontend Layer (React)"]
-        UI[React Router / Pages]
-        Chat[RAG Chat Widget - SSE]
+    subgraph Client["Camada Frontend (React)"]
+        UI[React Router / Páginas]
+        Chat[Widget de Chat RAG - SSE]
     end
 
-    subgraph API["Backend Layer (Spring Boot 3.4)"]
-        REST[REST Controllers]
-        Services[Application Services]
-        Hex[Hexagonal Ports & Adapters]
+    subgraph API["Camada Backend (Spring Boot 3.4)"]
+        REST[Controladores REST]
+        Services[Serviços de Aplicação]
+        Hex[Portas & Adaptadores Hexagonais]
     end
 
-    subgraph Data["Infrastructure & AI Layer"]
-        DB[(Supabase PostgreSQL)]
+    subgraph Data["Camada de Infraestrutura & IA"]
+        DB[(PostgreSQL Supabase)]
         Vector[(pgvector - 1536D)]
-        LLM[OpenAI API]
+        LLM[API da OpenAI]
     end
 
-    UI -->|JSON requests via API Client| REST
-    Chat -->|SSE Streaming| REST
+    UI -->|Requisições JSON via Cliente API| REST
+    Chat -->|Streaming SSE| REST
     REST --> Services
     Services --> Hex
     Hex -->|JPA / JDBC| DB
-    Hex -->|Cosine Similarity Search| Vector
-    Services -->|RAG Prompts| LLM
+    Hex -->|Busca por Similaridade de Cossenos| Vector
+    Services -->|Prompts RAG| LLM
 ```
 
 ---
 
-## ✨ Core Features
+## ✨ Recursos Principais
 
-### 1. Game-Agnostic Catalog (EAV Model)
-Different games require vastly different metadata (e.g., Skyrim needs "Load Order", Minecraft needs "Forge Version"). The database uses an **EAV (Entity-Attribute-Value)** pattern:
-- `games`: Root catalogs (Skyrim, Minecraft).
-- `attributes`: Dynamic field definitions (STRING, INTEGER, BOOLEAN).
-- `game_entities`: Specific mods, patches, assets.
-- `entity_values`: The cross-reference storing the actual metadata.
+### 1. Catálogo Agnóstico de Jogos (Modelo EAV)
+Jogos diferentes exigem metadados muito diferentes (ex: Skyrim precisa de "Load Order", Minecraft precisa de "Forge Version"). O banco de dados usa um padrão **EAV (Entity-Attribute-Value)**:
+- `games`: Catálogos raiz (Skyrim, Minecraft).
+- `attributes`: Definições dinâmicas de campos (STRING, INTEGER, BOOLEAN).
+- `game_entities`: Mods específicos, patches, assets.
+- `entity_values`: A referência cruzada armazenando os metadados reais.
 
-### 2. "The Collector" AI Assistant (RAG Pipeline)
-An intelligent chat interface that acts as a modding expert.
-- Context is loaded from the `game_knowledge` table using **pgvector cosine similarity**.
-- Real-time responses are streamed to the React frontend via **Server-Sent Events (SSE)**.
-- Context-aware of the currently selected game.
+### 2. Assistente de IA "The Collector" (Pipeline RAG)
+Uma interface de chat inteligente que atua como um especialista em modding.
+- O contexto é carregado da tabela `game_knowledge` usando **similaridade de cossenos do pgvector**.
+- As respostas em tempo real são transmitidas para o frontend React via **Server-Sent Events (SSE)**.
+- Reconhece o contexto do jogo selecionado atualmente.
 
-### 3. Nexus-Style Dark UI
-A premium frontend experience built with Tailwind CSS.
-- Glassmorphism panels and dynamic glow effects.
-- Security audit badges and entity type filter chips.
-- Seamless, responsive "slide-over" chat widget for ongoing technical support.
+### 3. Interface Dark estilo Nexus
+Uma experiência premium de frontend construída com Tailwind CSS.
+- Painéis em glassmorphism (efeito vidro) e efeitos de brilho dinâmicos.
+- Badges de auditoria de segurança e chips de filtro por tipo de entidade.
+- Widget de chat "slide-over" contínuo e responsivo para suporte técnico contínuo.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Como Começar
 
-### Prerequisites
+### Pré-requisitos
 
-- **Java 21** or higher
+- **Java 21** ou superior
 - **Maven 3.8+**
-- **Node.js 18+** and `npm`
-- **Supabase Account** (for PostgreSQL + pgvector + Auth)
-- **OpenAI API Key**
+- **Node.js 18+** e `npm`
+- **Conta Supabase** (para PostgreSQL + pgvector + Auth)
+- **Chave de API OpenAI**
 
-### 1. Database Setup (Supabase)
+### 1. Configuração do Banco de Dados (Supabase)
 
-1. Create a new Supabase project.
-2. Navigate to the SQL Editor and execute the `schema.sql` file located at `backend/src/main/resources/schema.sql`.
-3. This script will automatically:
-   - Enable `uuid-ossp` and `vector` extensions.
-   - Create all EAV and User tables.
-   - Insert development seed data for 5 popular games.
+1. Crie um novo projeto no Supabase.
+2. Navegue até o SQL Editor e execute o arquivo `schema.sql` localizado em `backend/src/main/resources/schema.sql`.
+3. Este script irá automaticamente:
+   - Ativar as extensões `uuid-ossp` e `vector`.
+   - Criar todas as tabelas EAV e de Usuários.
+   - Inserir dados semente (seed data) de desenvolvimento para 5 jogos populares.
 
-### 2. Backend Configuration
+### 2. Configuração do Backend
 
-Navigate to the `backend` directory. Create a `.env` file or export the following variables (matching your `application.yml` structure):
+Navegue para o diretório `backend`. Crie um arquivo `.env` ou exporte as seguintes variáveis (correspondendo à estrutura do seu `application.yml`):
 
 ```bash
-export SUPABASE_DB_HOST="your-project.supabase.co"
+export SUPABASE_DB_HOST="seu-projeto.supabase.co"
 export SUPABASE_DB_NAME="postgres"
 export SUPABASE_DB_USER="postgres"
-export SUPABASE_DB_PASSWORD="your-secure-password"
-export OPENAI_API_KEY="sk-your-openai-key"
-export SUPABASE_JWT_SECRET="your-supabase-jwt-secret"
+export SUPABASE_DB_PASSWORD="sua-senha-segura"
+export OPENAI_API_KEY="sk-sua-chave-openai"
+export SUPABASE_JWT_SECRET="seu-secret-jwt-supabase"
 ```
 
-Run the backend:
+Execute o backend:
 ```bash
 mvn spring-boot:run
 ```
-*The server will start on port `8080`.*
+*O servidor iniciará na porta `8080`.*
 
-### 3. Frontend Configuration
+### 3. Configuração do Frontend
 
-Navigate to the `frontend` directory. Install dependencies and start the Vite dev server:
+Navegue para o diretório `frontend`. Instale as dependências e inicie o servidor de desenvolvimento Vite:
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*The frontend will start on port `5173`. API requests are automatically proxied to `localhost:8080`.*
+*O frontend iniciará na porta `5173`. Requisições de API são automaticamente roteadas (proxied) para `localhost:8080`.*
 
 ---
 
-## 📡 API Reference Overview
+## 📡 Visão Geral da Referência da API
 
-The API follows RESTful principles and RFC 7807 for error reporting.
+A API segue princípios RESTful e a RFC 7807 para relatórios de erros.
 
-### Authentication
-All protected routes require a `Bearer` token containing a valid Supabase Auth JWT. Set via the `Authorization` header.
+### Autenticação
+Todas as rotas protegidas requerem um token `Bearer` contendo um JWT válido do Supabase Auth. Definido via cabeçalho `Authorization`.
 
-### Resource: Games (`/api/v1/games`)
+### Recurso: Jogos (`/api/v1/games`)
 
-- `GET /api/v1/games?page=0&size=20` - List game catalogs.
-- `GET /api/v1/games/{slug}` - Get details for a specific game.
-- `GET /api/v1/games/search?query=skyrim` - Full-text search games.
-- `POST /api/v1/games` (Admin) - Create a new game catalog.
+- `GET /api/v1/games?page=0&size=20` - Lista catálogos de jogos.
+- `GET /api/v1/games/{slug}` - Obtém detalhes de um jogo específico.
+- `GET /api/v1/games/search?query=skyrim` - Busca de texto completo em jogos.
+- `POST /api/v1/games` (Admin) - Cria um novo catálogo de jogo.
 
-### Resource: The Collector (`/api/v1/collector`)
+### Recurso: The Collector (`/api/v1/collector`)
 
 #### Chat Stream
 `POST /api/v1/collector/chat`
 
-Endpoint for interacting with the RAG AI. Requires a `text/event-stream` client.
+Endpoint para interagir com a IA RAG. Requer um cliente `text/event-stream`.
 
-**Request Payload:**
+**Payload da Requisição:**
 ```json
 {
   "gameSlug": "skyrim",
-  "message": "How do I fix the SKSE load order crash?",
+  "message": "Como eu corrijo o crash de load order do SKSE?",
   "conversationHistory": [
-    { "role": "user", "content": "Hello" },
-    { "role": "assistant", "content": "How can I help?" }
+    { "role": "user", "content": "Olá" },
+    { "role": "assistant", "content": "Como posso ajudar?" }
   ]
 }
 ```
 
-**Response (SSE Format):**
+**Resposta (Formato SSE):**
 ```text
-data: Based
-data: on
-data: the
+data: Baseado
+data: na
+data: sua
 data: load order...
 ```
 
 ---
 
-## 🛡 Security & Best Practices
+## 🛡 Segurança & Melhores Práticas
 
-- **Stateless Tokens:** Zero session state on the server; entirely JWT driven via Supabase.
-- **Global Error Handling:** All API errors are intercepted and formatted as `ProblemDetail` JSON objects.
-- **API Proxies:** The Vite dev server proxies API calls to avoid CORS issues during local development.
+- **Tokens Stateless (Sem Estado):** Zero estado de sessão no servidor; totalmente guiado por JWT via Supabase.
+- **Tratamento Global de Erros:** Todos os erros de API são interceptados e formatados como objetos JSON `ProblemDetail`.
+- **Proxies de API:** O servidor de dev do Vite atua como proxy para as chamadas de API, evitando problemas de CORS durante o desenvolvimento local.
 
 <div align="center">
-  <p>Built as an AI-First Case Study for <strong>TCU - Núcleo de IA (NIA)</strong>.</p>
+  <p>Construído como um Case de Estudo AI-First para o <strong>TCU - Núcleo de IA (NIA)</strong>.</p>
 </div>
