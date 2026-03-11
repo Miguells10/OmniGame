@@ -1,0 +1,61 @@
+# ==============================================================================
+# OmniGame AI - Git Ignore
+# ==============================================================================
+
+# ── General ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*~.nib
+local.properties
+.vscode/
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ── Backend (Java / Spring Boot / Maven) ──────────────────────────────────────
+backend/target/
+backend/pom.xml.tag
+backend/pom.xml.releaseBackup
+backend/pom.xml.versionsBackup
+backend/pom.xml.next
+backend/release.properties
+backend/dependency-reduced-pom.xml
+backend/buildNumber.properties
+backend/.mvn/timing.properties
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot related
+backend/application-local.yml
+backend/application-dev.yml
+backend/*.log
+
+# ── Frontend (React / Vite / Node.js) ─────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# npm/yarn/pnpm logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Vite
+frontend/.vite-env.d.ts
+
+# TypeScript
+frontend/tsconfig.tsbuildinfo
+
+# ESLint
+frontend/.eslintcache
+
+# ── Antigravity Skills (if cloned natively) ───────────────────────────────────
+antigravity-skills/
+.gemini/

@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════
+   OmniGame AI — Global Styles
+   Nexus-style dark theme with glassmorphism utilities
+   ═══════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0f1117;
+    color: #e2e8f0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar — Nexus-style thin dark scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f1117;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a3041;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3b475e;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Panel — used for The Collector chat widget */
+  .glass-panel {
+    @apply bg-nexus-elevated/80 backdrop-blur-xl border border-nexus-border/50 rounded-2xl shadow-2xl;
+  }
+
+  /* Nexus-style Card */
+  .nexus-card {
+    @apply bg-nexus-surface border border-nexus-border rounded-xl overflow-hidden
+           transition-all duration-300 ease-out
+           hover:border-accent-orange/40 hover:shadow-lg hover:shadow-accent-orange/5
+           hover:-translate-y-0.5;
+  }
+
+  /* Primary CTA Button */
+  .btn-primary {
+    @apply bg-accent-orange hover:bg-accent-hover text-white font-semibold
+           px-6 py-2.5 rounded-lg transition-all duration-200
+           hover:shadow-lg hover:shadow-accent-orange/25
+           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost Button */
+  .btn-ghost {
+    @apply text-gray-400 hover:text-white hover:bg-nexus-elevated
+           px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  /* AI Accent Button */
+  .btn-ai {
+    @apply bg-accent-cyan/10 hover:bg-accent-cyan/20 text-accent-cyan
+           border border-accent-cyan/30 hover:border-accent-cyan/50
+           px-5 py-2.5 rounded-lg transition-all duration-200
+           hover:shadow-lg hover:shadow-accent-cyan/10;
+  }
+
+  /* Input Field */
+  .input-nexus {
+    @apply bg-nexus-bg border border-nexus-border rounded-lg px-4 py-2.5
+           text-gray-200 placeholder-nexus-muted
+           focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/20
+           transition-all duration-200;
+  }
+
+  /* Badge — small label */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  /* Security Audited Seal */
+  .seal-audited {
+    @apply badge bg-accent-green/10 text-accent-green border border-accent-green/20;
+  }
+
+  /* Tag / Filter Chip */
+  .chip {
+    @apply badge bg-nexus-elevated text-gray-400 border border-nexus-border
+           hover:text-white hover:border-nexus-muted cursor-pointer transition-colors duration-150;
+  }
+  .chip-active {
+    @apply badge bg-accent-orange/15 text-accent-orange border border-accent-orange/30;
+  }
+}
+
+@layer utilities {
+  /* Text gradient utility */
+  .text-gradient-orange {
+    @apply bg-gradient-to-r from-accent-orange to-yellow-400 bg-clip-text text-transparent;
+  }
+  .text-gradient-cyan {
+    @apply bg-gradient-to-r from-accent-cyan to-blue-400 bg-clip-text text-transparent;
+  }
+
+  /* Glow effect */
+  .glow-cyan {
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.15), 0 0 30px rgba(0, 212, 255, 0.05);
+  }
+  .glow-orange {
+    box-shadow: 0 0 15px rgba(218, 142, 53, 0.15), 0 0 30px rgba(218, 142, 53, 0.05);
+  }
+}
