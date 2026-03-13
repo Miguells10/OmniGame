@@ -23,6 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import com.omnigame.application.service.CustomUserDetailsService;
+import com.omnigame.application.service.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * JWT authentication filter integrated with Supabase Auth.
  *
@@ -52,6 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${supabase.jwt.secret}")
     private String jwtSecret;
 
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -72,19 +79,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .getPayload();
 
                 String userId = claims.getSubject();
-                String role = claims.get("role", String.class);
+                String email = claims.get("email", String.class);
 
                 if (userId != null) {
-                    List<SimpleGrantedAuthority> authorities = role != null
-                            ? List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                            : Collections.emptyList();
+                    CustomUserDetails userDetails = customUserDetailsService.loadUserBySupabaseId(userId, email);
 
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.debug("Authenticated user: id={}, role={}", userId, role);
+                    log.debug("Authenticated user: authUid={}, role={}", userId, userDetails.getUser().getRole());
                 }
             }
         } catch (Exception e) {

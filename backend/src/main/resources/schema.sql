@@ -141,6 +141,7 @@ CREATE TABLE IF NOT EXISTS app_users (
     display_name      VARCHAR(200),
     avatar_url        VARCHAR(500),
     subscription_tier VARCHAR(20)  NOT NULL DEFAULT 'FREE' CHECK (subscription_tier IN ('FREE', 'PREMIUM')),
+    role              VARCHAR(50)  NOT NULL DEFAULT 'ROLE_USER' CHECK (role IN ('ROLE_USER', 'ROLE_MODDER', 'ROLE_ADMIN')),
     stripe_customer_id VARCHAR(100),
     created_at        TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ  NOT NULL DEFAULT NOW()
@@ -148,7 +149,24 @@ CREATE TABLE IF NOT EXISTS app_users (
 
 CREATE INDEX IF NOT EXISTS idx_app_users_auth_uid ON app_users(auth_uid);
 
-COMMENT ON TABLE app_users IS 'Application user profiles linked to Supabase Auth with subscription tier (SaaS).';
+COMMENT ON TABLE app_users IS 'Application user profiles linked to Supabase Auth with roles and subscription tier (SaaS).';
+
+-- ── Security Audit Logs ────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id       UUID REFERENCES app_users(id) ON DELETE SET NULL,
+    auth_uid      VARCHAR(100),
+    action        VARCHAR(100) NOT NULL,
+    resource      VARCHAR(200),
+    status        VARCHAR(50) NOT NULL,
+    ip_address    VARCHAR(45),
+    details       TEXT,
+    timestamp     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp);
+
+COMMENT ON TABLE audit_logs IS 'Security audit logs for access tracking and security events.';
 
 -- ╔═══════════════════════════════════════╗
 -- ║  6. HELPER FUNCTIONS                 ║

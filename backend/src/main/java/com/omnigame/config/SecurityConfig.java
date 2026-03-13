@@ -18,6 +18,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import com.omnigame.application.service.SecurityAuditService;
+import com.omnigame.application.service.CustomUserDetails;
+import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 /**
  * Spring Security configuration for OmniGame AI.
  *
@@ -40,6 +46,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final SecurityAuditService securityAuditService;
 
     @Value("${app.cors.allowed-origins:http://localhost:5173}")
     private String allowedOrigins;
@@ -56,21 +63,39 @@ public class SecurityConfig {
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints — game catalog browsing
+                        // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/api/v1/games/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         // Actuator health check
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                        // Protected endpoints — require JWT
-                        .requestMatchers("/api/v1/collector/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/games/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/games/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/games/**").authenticated()
+                        // Auth details endpoint
+                        .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
+
+                        // Collector Chat (Require Authenticated Tiers)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collector/chat").hasAnyRole("USER", "MODDER", "ADMIN")
+
+                        // Game Writing Tiers
+                        .requestMatchers(HttpMethod.POST, "/api/v1/games/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/games/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/games/**").hasRole("ADMIN")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
+                )
+
+                // Exception Handling for Audit Logs
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            handleAccessDeniedLog(request);
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+                        })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            handleUnauthorizedLog(request);
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
                 )
 
                 // JWT filter — runs before UsernamePasswordAuthenticationFilter
@@ -91,5 +116,32 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private void handleAccessDeniedLog(HttpServletRequest request) {
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
+            securityAuditService.logEvent(
+                    userDetails.getUser().getId(),
+                    userDetails.getUser().getAuthUid().toString(),
+                    "ACCESS_DENIED",
+                    request.getRequestURI(),
+                    "FORBIDDEN",
+                    request.getRemoteAddr(),
+                    "User lacks required role."
+            );
+        }
+    }
+
+    private void handleUnauthorizedLog(HttpServletRequest request) {
+        securityAuditService.logEvent(
+                null, 
+                "Anonymous", 
+                "UNAUTHORIZED_ACCESS", 
+                request.getRequestURI(), 
+                "UNAUTHORIZED", 
+                request.getRemoteAddr(), 
+                "No valid JWT token provided."
+        );
     }
 }
