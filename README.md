@@ -99,7 +99,33 @@ Uma experiência premium de frontend construída com Tailwind CSS.
 - **Conta Supabase** (para PostgreSQL + pgvector + Auth)
 - **Chave de API OpenAI**
 
-### 1. Configuração do Banco de Dados (Supabase)
+### Modo Recomendado: Docker Compose (Rodar tudo de uma vez!)
+
+A maneira mais fácil e rápida de rodar o projeto completo (Banco de Dados Vetorial + API Java + Frontend React) é via Docker Compose.
+
+1. **Crie o arquivo de ambiente:**
+   Duplique o arquivo `.env.example` e renomeie para `.env`.
+   Preencha com sua verdadeira chave da OpenAI e Secret do JWT:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Suba os containers:**
+   Na raiz do projeto (onde está o `docker-compose.yml`), execute:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Pronto! Acesso os serviços:**
+   - **Frontend (Interface):** [http://localhost](http://localhost)
+   - **Backend (API):** [http://localhost:8080/api/v1/games](http://localhost:8080/api/v1/games)
+   - O banco de dados já inicializará automaticamente com o esquema EAV, pgvector configurado e dados semente (sementes de jogos).
+
+---
+
+### Modo Manual (Sem Docker)
+
+#### 1. Configuração do Banco de Dados (Supabase)
 
 1. Crie um novo projeto no Supabase.
 2. Navegue até o SQL Editor e execute o arquivo `schema.sql` localizado em `backend/src/main/resources/schema.sql`.
